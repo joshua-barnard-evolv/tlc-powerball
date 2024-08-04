@@ -1,0 +1,33 @@
+POST https://data.api.thelott.com/sales/vmax/web/data/lotto/latestresults
+Content-Length: 98
+User-Agent: IntelliJ HTTP Client/WebStorm 2024.1.4
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+x-http2-scheme: https
+
+{
+CompanyId: 'GoldenCasket',
+MaxDrawCountPerProduct: 1,
+OptionalProductFilter: ['Powerball']
+    }
+
+<> 2024-08-04T133625.200.json
+
+###
+
+GET https://data.api.thelott.com/sales/vmax/web/data/lotto/latestresults
+User-Agent: IntelliJ HTTP Client/WebStorm 2024.1.4
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+content-length: 98
+
+{
+CompanyId: 'GoldenCasket',
+MaxDrawCountPerProduct: 1,
+OptionalProductFilter: ['Powerball']
+    }
+
+<> 2024-08-04T133542.405.json
+
+###
+

@@ -1,6 +1,10 @@
 # Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Assumptions
+- There will only ever be 7 primary numbers for PowerBall
+- There is only one secondary number for PowerBall
+- Numbers can't be selected - only the autofill functionality is expected
+- 
 
 ## Available Scripts
 
