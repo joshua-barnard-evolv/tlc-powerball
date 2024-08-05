@@ -3,23 +3,22 @@ interface Payload {
     MaxDrawCountPerProduct: number;
     OptionalProductFilter: string[];
 }
-// TODO figure out what to do with payload
 
-export const fetchLottoResults = async () => {
-    const payload = {
-        CompanyId: 'GoldenCasket',
-        MaxDrawCountPerProduct: 1,
-        OptionalProductFilter: ['Powerball']
-    };
+export const fetchLottoResults = async (payload: Payload) => {
+    try {
+        const result = await fetch('https://data.api.thelott.com/sales/vmax/web/data/lotto/latestresults', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
 
-    const response = await fetch('https://data.api.thelott.com/sales/vmax/web/data/lotto/latestresults', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-    });
+        const response = await result.json();
 
-    return await response.json();
+        return response.DrawResults[0];
+    } catch (error) {
+        console.error('Error fetching lotto results', error);
+    }
 };
 

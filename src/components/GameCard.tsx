@@ -1,102 +1,75 @@
 import * as React from 'react';
-import {Grid, Typography} from "@mui/material";
-import AutofillButton from "./buttons/AutofillButton";
-import ClearButton from "./buttons/ClearButton";
-import DrawNumber from "./DrawNumber";
-import {useState} from "react";
-import {fetchLottoResults} from "../shared/api";
-import strings from "../shared/strings";
+import { Grid, Typography } from '@mui/material';
+import AutofillButton from './buttons/AutofillButton';
+import ClearButton from './buttons/ClearButton';
+import { useState } from 'react';
+import { fetchLottoResults } from '../shared/api';
+import { colors, powerballNumbers, strings } from '../shared/constants';
+import NumbersLayout from './NumbersLayout';
+import LottoNumbersContainer from './LottoNumbersContainer';
 
-type Props = {};
 
-const GameCard = (props: Props) => {
-    // TODO is there a better way to handle the state of the numbers?
+const GameCard = () => {
     const [primaryNumbersDraw, setPrimaryNumbersDraw] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
     const [secondaryNumbersDraw, setSecondaryNumbersDraw] = useState<number[]>([0]);
-// TODO solve for one powerball number vs unknown array
+    const [disabled, setDisabled] = useState<boolean>(true);
+
     const getLatestDrawNumbers = async () => {
-        // TODO this function doesn't seem right
-        const latestDrawNumbers = await fetchLottoResults().then((data) => {
-            if (data.DrawResults) {
-                setPrimaryNumbersDraw(data.DrawResults[0].PrimaryNumbers);
-                setSecondaryNumbersDraw([data.DrawResults[0].SecondaryNumbers[0]]);
+        await fetchLottoResults({
+            CompanyId: 'GoldenCasket',
+            MaxDrawCountPerProduct: 1,
+            OptionalProductFilter: ['Powerball']
+        }).then((data) => {
+            if (data) {
+                setPrimaryNumbersDraw(data.PrimaryNumbers);
+                setSecondaryNumbersDraw(data.SecondaryNumbers);
+                setDisabled(false);
             }
         });
-    }
+    };
 
     const clearNumbers = () => {
         setPrimaryNumbersDraw([0, 0, 0, 0, 0, 0, 0]);
         setSecondaryNumbersDraw([0]);
-    }
-
-    const isInDraw = (number: number, drawNumbers: number[]) => {
-        return drawNumbers.includes(number);
-    }
-
-    const primaryNumbers = Array.from({length: 35}, (_, i) => i + 1);
-    const secondaryNumbers = Array.from({length: 20}, (_, i) => i + 1);
+        setDisabled(true);
+    };
 
     return (
-        <Grid container wrap="nowrap">
-            <Grid container>
-                <Grid container>
-                    {primaryNumbersDraw.map((number, index) => {
-                            return (
-                                <Grid item key={index}>
-                                    <DrawNumber number={number}/>
-                                </Grid>
-                            );
-                        }
-                    )}
-                    {secondaryNumbersDraw.map((number, index) => {
-                            return (
-                                <Grid item key={index}>
-                                    <DrawNumber number={number} isPowerBall/>
-                                </Grid>
-                            );
-                        }
-                    )}
+        <Grid container wrap="nowrap" sx={{ padding: 1}}>
+            <Grid container flexDirection="column">
+                <Grid item sx={{padding: 1}}>
+                    <LottoNumbersContainer
+                        primaryNumbers={primaryNumbersDraw}
+                        secondaryNumbers={secondaryNumbersDraw}
+                    />
                 </Grid>
-                {/*TODO Is there a way to not duplicate code to show both sets of numbers?*/}
-                <Grid
-                    container
+                <NumbersLayout
+                    key={1}
+                    size={powerballNumbers.primary}
+                    drawNumbers={primaryNumbersDraw}
+                />
+                <Typography
                     sx={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(10, 1fr)',
+                        textTransform: 'uppercase',
+                        backgroundColor: colors.grey,
+                        color: colors.white,
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        padding: 0.5,
+                        textAlign: 'center',
                     }}
                 >
-                    {primaryNumbers.map((number, index) => {
-                            const inDraw = isInDraw(number, primaryNumbersDraw);
-                            return (
-                                <Grid item key={index}>
-                                    <DrawNumber number={number} inDraw={inDraw}/>
-                                </Grid>
-                            );
-                        }
-                    )}
-                </Grid>
-                <Typography variant="h6">{strings.message}</Typography>
-                <Grid
-                    container
-                    sx={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(10, 1fr)',
-                    }}
-                >
-                    {secondaryNumbers.map((number, index) => {
-                        const inDraw = isInDraw(number, primaryNumbersDraw);
-                        return (
-                                <Grid item key={index}>
-                                    <DrawNumber number={number} inDraw={inDraw}/>
-                                </Grid>
-                            );
-                        }
-                    )}
-                </Grid>
+                    {strings.message}
+                </Typography>
+                <NumbersLayout
+                    key={2}
+                    size={powerballNumbers.secondary}
+                    drawNumbers={secondaryNumbersDraw}
+                />
             </Grid>
-            <Grid container>
+            <Grid container sx={{ alignItems: 'flex-start', gap: 1, padding: 1 }}>
                 <AutofillButton onClick={getLatestDrawNumbers}/>
-                <ClearButton onClick={clearNumbers}/>
+                <ClearButton onClick={clearNumbers} disabled={disabled}/>
             </Grid>
         </Grid>
     );
